@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     <title>board</title>
     <link rel="stylesheet" href="/css/style.css"/>
@@ -29,14 +29,14 @@
             <c:when test="${not empty list}">
                 <c:forEach items="${list}" var="listItem">
                     <tr>
-                        <td><c:out value="${listItem.boardIdx}" /></td>
+                        <td>${listItem.boardIdx}</td>
                         <td class="title">
-                            <a href="/board/openBoardDetail.do?boardIdx=${listItem.boardIdx}">
-                                <c:out value="${listItem.title}" />
+                            <a href="/board/openBoardDetail.do?boardIdx=${listItem.boardIdx}&nowPage=${pageDto.nowPage}">
+                                ${listItem.title}
                             </a>
                         </td>
-                        <td><c:out value="${listItem.hitCnt}" /></td>
-                        <td><c:out value="${listItem.createdDatetime}" /></td>
+                        <td>${listItem.hitCnt}</td>
+                        <td>${listItem.createdDatetime}</td>
                     </tr>
                 </c:forEach>
             </c:when>
@@ -49,6 +49,39 @@
         </tbody>
     </table>
     <a href="/board/openBoardWrite.do" class="btn">글 쓰기</a>
+    <div class="page">
+        <a href="/board/openBoardList.do?nowPage=1"> << </a>
+        <a href="/board/openBoardList.do?nowPage=${pageDto.prePage}"> < </a>
+        <c:forEach begin="${pageDto.startPage}" end="${pageDto.endPage}" step="1" var="page">
+            <a href="/board/openBoardList.do?nowPage=${page}"
+               class="<c:if test="${page eq pageDto.nowPage}">active</c:if>">${page}</a>
+        </c:forEach>
+        <a href="/board/openBoardList.do?nowPage=${pageDto.nextPage}"> > </a>
+        <a href="/board/openBoardList.do?nowPage=${pageDto.totalPage}"> >> </a>
+    </div>
+
 </div>
+<script>
+    window.onload = function () {
+        let trList = document.querySelector("tbody").querySelectorAll("tr")
+
+        for (item of trList) {
+            const aTag = item.querySelector("a");
+            item.addEventListener("click", function (e) {
+                aTag.click();
+            });
+        }
+        ;
+
+        // $(function () {
+        //     let trList = $("tbody").find("tr");
+        //     trList.click(function () {
+        //         $(this).find("a").click();
+        //     });
+        // });
+
+    }
+
+</script>
 </body>
 </html>

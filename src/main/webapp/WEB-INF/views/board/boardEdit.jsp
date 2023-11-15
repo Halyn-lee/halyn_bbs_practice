@@ -3,9 +3,9 @@
 <head>
     <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-    <title>게시글 상세 화면</title>
-    <link rel="stylesheet" href="/css/summernote/summernote-lite.css">
+    <title>게시글 수정</title>
     <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/summernote/summernote-lite.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/summernote/summernote-lite.js"></script>
     <script src="/js/summernote/lang/summernote-ko-KR.js"></script>
@@ -37,45 +37,39 @@
             </tr>
             <tr>
                 <th scope="row">제목</th>
-                <td colspan="3"><div id="title" name="title">${board.title}</div></td>
+                <td colspan="3"><input type="text" id="title" name="title" value="${board.title}" /></td>
             </tr>
             <tr>
                 <td colspan="4" class="view_text">
-                    <div id="contents" name="contents" data-content="${board.contents}"></div>
+                    <textarea title="내용" id="summernote" name="contents">${board.contents}</textarea>
                 </td>
             </tr>
             </tbody>
         </table>
         <input type="hidden" id="boardIdx" name="boardIdx" value="${board.boardIdx}" />
-        <input type="hidden" id="pageDto" name="pageDto" value="${pageDto.nowPage}" />
+        <input type="hidden" id="nowPage" name="nowPage" value="${pageDto.nowPage}" />
     </form>
+    <a href="javascript:history.back();" id="list" class="btn">수정취소</a>
+    <a href="#this" id="edit" class="btn">수정완료</a>
+</div>
 
-    <a href="#this" id="list" class="btn">목록으로</a>
-    <a href="/board/openBoardEdit.do?boardIdx=${board.boardIdx}&nowPage=${pageDto.nowPage}" id="edit" class="btn">수정하기</a>
-    <a href="/board/deleteBoard.do?boardIdx=${board.boardIdx}&nowPage=${pageDto.nowPage}" id="delete" class="btn">삭제하기</a>
+<script type="text/javascript">
+    $(document).ready(function(){
 
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $("#list").on("click", function(){
-                var frm = $("#frm")[0];
-                location.href = "/board/openBoardList.do?nowPage=${pageDto.nowPage}";
-            });
+        $("#edit").on("click", function(){
+            var frm = $("#frm")[0];
+            frm.action = "/board/updateBoard.do";
+            frm.submit();
+        });
 
-            $("#edit").on("click", function(){
-                var frm = $("#frm")[0];
-                frm.action = "/board/updateBoard.do";
-                frm.submit();
-            });
-
-            $("#delete").on("click", function(){
-                var frm = $("#frm")[0];
-                frm.action = "/board/deleteBoard.do";
-                frm.submit();
-            });
-
-        // 데이터 속성에 저장된 HTML 내용을 Summernote에 설정
-        var content = $('#contents').data('content');
-        $('#contents').html(content);
+        $('#summernote').summernote({
+            height: 300,
+            minHeight: null,
+            maxHeight: null,
+            focus: true,
+            lang: "ko-KR",
+            placeholder: '최대 2048자까지 쓸 수 있습니다'
+        });
     });
 </script>
 </body>

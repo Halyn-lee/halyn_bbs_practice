@@ -15,6 +15,8 @@ import org.springframework.context.annotation.PropertySource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.util.Arrays;
+
 @Configuration
 @PropertySource("classpath:/application.properties")
 public class DatabaseConfiguration {
@@ -45,6 +47,8 @@ public class DatabaseConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         sqlSessionFactoryBean.setMapperLocations(applicationContext.getResources("classpath:/mapper/**/sql-*.xml"));
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.halyn.dto");
+        mybatisConfig().setMapUnderscoreToCamelCase(true);
         sqlSessionFactoryBean.setConfiguration(mybatisConfig());
 
         return sqlSessionFactoryBean.getObject();

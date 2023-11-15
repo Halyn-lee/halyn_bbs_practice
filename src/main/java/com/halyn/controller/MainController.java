@@ -2,8 +2,12 @@ package com.halyn.controller;
 
 import java.util.List;
 
+import com.halyn.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,45 +22,63 @@ public class MainController {
     private BoardService boardService;
 
     @RequestMapping("/board/openBoardList.do")
-    public ModelAndView openBoardList() throws Exception{
-        ModelAndView mv = new ModelAndView("/board/boardList");
-
-        List<BoardDto> list = boardService.selectBoardList();
-        mv.addObject("list", list);
-
-        return mv;
+    public String openBoardList(PageDto pageDto, Model model) throws Exception {
+        List<BoardDto> list = boardService.selectBoardList(pageDto);
+        pageDto.setTotalItemCount(boardService.selectBoardItemCount());
+        model.addAttribute("list", list);
+        model.addAttribute("pageDto", pageDto);
+        return "/board/boardList";
     }
 
-    @RequestMapping("/board/openBoardWrite.do")
-    public String openBoardWrite() throws Exception{
+    @GetMapping("/board/openBoardWrite.do")
+    public String openBoardWrite(Model model,
+                                 @RequestParam(required = false) String error) throws Exception {
+        if (error != null && error.equals("-1")) {
+            model.addAttribute("error", "error");
+        }
         return "/board/boardWrite";
     }
 
-    @RequestMapping("/board/insertBoard.do")
-    public String insertBoard(BoardDto board) throws Exception{
-        boardService.insertBoard(board);
+    @PostMapping("/board/openBoardWrite.do")
+    public String insertBoard(Model model, BoardDto board) throws Exception {
+        System.out.println(board.toString());
+        if (!boardService.insertBoard(board)) {
+            return "redirect:/board/openBoardWrite.do?error=-1";
+        }
         return "redirect:/board/openBoardList.do";
     }
 
     @RequestMapping("/board/openBoardDetail.do")
-    public ModelAndView openBoardDetail(@RequestParam int boardIdx) throws Exception{
-        ModelAndView mv = new ModelAndView("/board/boardDetail");
+    public String openBoardDetail(int boardIdx, Model model, PageDto pageDto) throws Exception {
 
         BoardDto board = boardService.selectBoardDetail(boardIdx);
-        mv.addObject("board", board);
+        model.addAttribute("board", board);
+        model.addAttribute("pageDto", pageDto);
 
-        return mv;
+        return "/board/boardDetail";
+    }
+
+    @RequestMapping("/board/openBoardEdit.do")
+    public String openBoardEdit(int boardIdx, Model model, PageDto pageDto) throws Exception {
+        BoardDto board = boardService.selectBoardDetail(boardIdx);
+        model.addAttribute("board", board);
+        model.addAttribute("pageDto", pageDto);
+
+        return "/board/boardEdit";
     }
 
     @RequestMapping("/board/updateBoard.do")
-    public String updateBoard(BoardDto board) throws Exception{
+    public String updateBoard(BoardDto board, PageDto pageDto) throws Exception {
         boardService.updateBoard(board);
-        return "redirect:/board/openBoardList.do";
+        int boardIdx = board.getBoardIdx();
+        int nowPage = pageDto.getNowPage();
+        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx +"&nowPage=" + nowPage;
     }
 
     @RequestMapping("/board/deleteBoard.do")
-    public String deleteBoard(int boardIdx) throws Exception{
+    public String deleteBoard(int boardIdx, PageDto pageDto) throws Exception {
         boardService.deleteBoard(boardIdx);
-        return "redirect:/board/openBoardList.do";
+        int nowPage = pageDto.getNowPage();
+        return "redirect:/board/openBoardList.do?nowPage=" + nowPage;
     }
 }
