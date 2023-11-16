@@ -2,26 +2,26 @@ package com.halyn.controller;
 
 import java.util.List;
 
+import com.halyn.dto.CommentDto;
 import com.halyn.dto.PageDto;
+import com.halyn.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
 
 import com.halyn.dto.BoardDto;
 import com.halyn.service.BoardService;
-
 @Controller
 public class MainController {
 
     @Autowired
     private BoardService boardService;
 
-    @RequestMapping("/board/openBoardList.do")
+    @Autowired
+    private CommentService commentService;
+
+    @GetMapping("/board/openBoardList.do")
     public String openBoardList(PageDto pageDto, Model model) throws Exception {
         List<BoardDto> list = boardService.selectBoardList(pageDto);
         pageDto.setTotalItemCount(boardService.selectBoardItemCount());
@@ -48,18 +48,21 @@ public class MainController {
         return "redirect:/board/openBoardList.do";
     }
 
-    @RequestMapping("/board/openBoardDetail.do")
-    public String openBoardDetail(int boardIdx, Model model, PageDto pageDto) throws Exception {
+    @GetMapping("/board/openBoardDetail.do")
+    public String openBoardDetail(@RequestParam("boardIdx") int boardIdx, Model model, PageDto pageDto, CommentDto comment) throws Exception {
 
         BoardDto board = boardService.selectBoardDetail(boardIdx);
         model.addAttribute("board", board);
         model.addAttribute("pageDto", pageDto);
 
+        List<CommentDto> commentList = commentService.selectCommentList(comment.getBoardIdx());
+        model.addAttribute("commentList", commentList);
+
         return "/board/boardDetail";
     }
 
-    @RequestMapping("/board/openBoardEdit.do")
-    public String openBoardEdit(int boardIdx, Model model, PageDto pageDto) throws Exception {
+    @GetMapping("/board/openBoardEdit.do")
+    public String openBoardEdit(@RequestParam("boardIdx") int boardIdx, Model model, PageDto pageDto) throws Exception {
         BoardDto board = boardService.selectBoardDetail(boardIdx);
         model.addAttribute("board", board);
         model.addAttribute("pageDto", pageDto);
@@ -67,18 +70,35 @@ public class MainController {
         return "/board/boardEdit";
     }
 
-    @RequestMapping("/board/updateBoard.do")
+    @PostMapping("/board/updateBoard.do")
     public String updateBoard(BoardDto board, PageDto pageDto) throws Exception {
         boardService.updateBoard(board);
         int boardIdx = board.getBoardIdx();
         int nowPage = pageDto.getNowPage();
-        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx +"&nowPage=" + nowPage;
+        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
     }
 
-    @RequestMapping("/board/deleteBoard.do")
-    public String deleteBoard(int boardIdx, PageDto pageDto) throws Exception {
+    @PostMapping("/board/deleteBoard.do")
+    public String deleteBoard(@RequestParam("boardIdx") int boardIdx, PageDto pageDto) throws Exception {
         boardService.deleteBoard(boardIdx);
         int nowPage = pageDto.getNowPage();
         return "redirect:/board/openBoardList.do?nowPage=" + nowPage;
     }
+
+    @PostMapping("/board/openCommentWrite.do")
+    public String insertComment(@RequestParam("boardIdx") int boardIdx, CommentDto comment, PageDto pageDto) throws Exception {
+        comment.setBoardIdx(boardIdx);
+        commentService.insertComment(comment);
+        commentService.selectCommentList(comment.getBoardIdx());
+
+        int nowPage = pageDto.getNowPage();
+        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
+    }
+
+//    @PostMapping("/board/deleteComment.do")
+//    public String deleteComment(@RequestParam("boardIdx") int boardIdx, PageDto pageDto) throws Exception {
+//        commentService.deleteComment(commentIdx);
+//        int nowPage = pageDto.getNowPage();
+//        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
+//    }
 }

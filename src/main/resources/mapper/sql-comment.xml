@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.halyn.mapper.CommentMapper">
+
+    <insert id="insertComment" parameterType="CommentDto" useGeneratedKeys="true" keyProperty="commentIdx">
+        INSERT INTO comment
+        (
+            board_idx,
+            contents,
+            creator_id,
+            created_datetime
+        )
+        VALUES
+            (
+                #{boardIdx},
+                #{contents},
+                'admin',
+                NOW()
+            )
+    </insert>
+
+    <select id="selectCommentList" resultType="CommentDto">
+        SELECT comment_idx,
+               contents,
+               creator_id,
+               DATE_FORMAT(created_datetime, '%Y.%m.%d %H:%i:%s') AS created_datetime
+        FROM comment
+        WHERE board_idx = #{boardIdx} AND deleted_yn = 'N'
+        ORDER BY comment_idx DESC
+    </select>
+
+</mapper>

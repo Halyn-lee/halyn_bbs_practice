@@ -22,7 +22,7 @@ public class PageDto {
 
     public int getTotalPage() {
         int result = totalItemCount / itemCountByPage;
-        if (result % itemCountByPage != 0) {
+        if (totalItemCount % itemCountByPage > 0) {
             result++;
         }
         return result;

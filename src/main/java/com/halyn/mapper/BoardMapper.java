@@ -3,7 +3,6 @@ package com.halyn.mapper;
 import java.util.List;
 
 import com.halyn.dto.PageDto;
-import lombok.NoArgsConstructor;
 import org.apache.ibatis.annotations.Mapper;
 import com.halyn.dto.BoardDto;
 

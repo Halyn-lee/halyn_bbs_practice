@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.halyn.dto.BoardDto;
 import com.halyn.mapper.BoardMapper;
-import org.springframework.web.servlet.ModelAndView;
 
 @Service
 public class BoardServiceImpl implements BoardService {

@@ -54,8 +54,33 @@
     <a href="/board/openBoardEdit.do?boardIdx=${board.boardIdx}&nowPage=${pageDto.nowPage}" id="edit" class="btn">수정하기</a>
     <a href="/board/deleteBoard.do?boardIdx=${board.boardIdx}&nowPage=${pageDto.nowPage}" id="delete" class="btn">삭제하기</a>
 
+    <hr/>
+    <h4>댓글 작성</h4>
+    <form action="/board/openCommentWrite.do" method="post" >
+        <input type="hidden" id="creator_id" name="creatorId" value="admin">
+        <p>
+            <textarea name="contents">${comment.contents}</textarea>
+        </p>
+        <button type="submit" class="btn">확인</button>
+        <input type="hidden" name="boardIdx" value="${board.boardIdx}" />
+        <input type="hidden" name="pageDto" value="${pageDto.nowPage}" />
+    </form>
+
+    <hr/>
+    <h4>댓글 목록</h4>
+    <div id="comment-list">
+        <c:forEach var="comment" items="${commentList}">
+            <div class="comment">
+                <p>작성자: ${comment.creatorId}</p>
+                <p>작성일: ${comment.createdDatetime}</p>
+                <p>내용: ${comment.contents}</p>
+                <button type="submit" id="cmtDelete" class="btn">삭제</button>
+            </div>
+            <hr/>
+        </c:forEach>
+    </div>
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(function () {
             $("#list").on("click", function(){
                 var frm = $("#frm")[0];
                 location.href = "/board/openBoardList.do?nowPage=${pageDto.nowPage}";
@@ -73,10 +98,18 @@
                 frm.submit();
             });
 
+            $("#cmtDelete").on("click", function(){
+                var frm = $("#frm")[0];
+                frm.action = "/board/deleteComment.do";
+                frm.submit();
+            });
+
+
         // 데이터 속성에 저장된 HTML 내용을 Summernote에 설정
         var content = $('#contents').data('content');
         $('#contents').html(content);
     });
-</script>
+
+    </script>
 </body>
 </html>
