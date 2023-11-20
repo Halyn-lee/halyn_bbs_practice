@@ -1,17 +1,20 @@
 package com.halyn.controller;
 
-import java.util.List;
-
+import com.halyn.dto.BoardDto;
 import com.halyn.dto.CommentDto;
 import com.halyn.dto.PageDto;
+import com.halyn.service.BoardService;
 import com.halyn.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.halyn.dto.BoardDto;
-import com.halyn.service.BoardService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Controller
 public class MainController {
 
@@ -21,9 +24,19 @@ public class MainController {
     @Autowired
     private CommentService commentService;
 
+    @RequestMapping("/")
+    public String index() {
+        return "redirect:/board/openBoardList.do";
+    }
+
     @GetMapping("/board/openBoardList.do")
-    public String openBoardList(PageDto pageDto, Model model) throws Exception {
+    public String openBoardList(PageDto pageDto, Model model, RedirectAttributes redirectAttributes) throws Exception {
         List<BoardDto> list = boardService.selectBoardList(pageDto);
+        if (list.isEmpty() && pageDto.getNowPage() > 1) {
+            pageDto.setNowPage(pageDto.getNowPage() - 1);
+            redirectAttributes.addFlashAttribute("pageDto", pageDto);
+            return "redirect:/board/openBoardList.do?nowPage=" + pageDto.getNowPage();
+        }
         pageDto.setTotalItemCount(boardService.selectBoardItemCount());
         model.addAttribute("list", list);
         model.addAttribute("pageDto", pageDto);
@@ -79,10 +92,13 @@ public class MainController {
     }
 
     @PostMapping("/board/deleteBoard.do")
-    public String deleteBoard(@RequestParam("boardIdx") int boardIdx, PageDto pageDto) throws Exception {
-        boardService.deleteBoard(boardIdx);
-        int nowPage = pageDto.getNowPage();
-        return "redirect:/board/openBoardList.do?nowPage=" + nowPage;
+    @ResponseBody
+    public Map<String, Object> deleteBoard(int boardIdx, int nowPage) throws Exception {
+        boolean result = boardService.deleteBoard(boardIdx) > 0;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("result", result);
+        resultMap.put("nowPage", nowPage);
+        return resultMap;
     }
 
     @PostMapping("/board/openCommentWrite.do")
@@ -95,10 +111,25 @@ public class MainController {
         return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
     }
 
-//    @PostMapping("/board/deleteComment.do")
-//    public String deleteComment(@RequestParam("boardIdx") int boardIdx, PageDto pageDto) throws Exception {
-//        commentService.deleteComment(commentIdx);
-//        int nowPage = pageDto.getNowPage();
-//        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
-//    }
+    @PostMapping("/board/deleteComment.do")
+    @ResponseBody
+    public Map<String, Object> deleteComment(int commentIdx, int boardIdx, int nowPage) throws Exception {
+        boolean result = commentService.deleteComment(commentIdx) > 0;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("success", result);
+        resultMap.put("nowPage", nowPage);
+        resultMap.put("boardIdx", boardIdx);
+        return resultMap;
+    }
+
+    @PostMapping("/board/updateComment.do")
+    public String updateComment(int commentIdx, String contents, int boardIdx, int nowPage) throws Exception {
+        CommentDto updatedComment = new CommentDto();
+        updatedComment.setCommentIdx(commentIdx);
+        updatedComment.setContents(contents);
+
+        commentService.updateComment(updatedComment);
+
+        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
+    }
 }

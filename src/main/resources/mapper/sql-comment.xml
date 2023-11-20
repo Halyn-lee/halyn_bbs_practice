@@ -30,4 +30,17 @@
         ORDER BY comment_idx DESC
     </select>
 
+    <update id="deleteComment" parameterType="int">
+        UPDATE comment SET
+                           deleted_yn = 'Y',
+                           updated_datetime = NOW()
+        WHERE comment_idx = #{commentIdx}
+    </update>
+
+    <update id="updateComment" parameterType="CommentDto">
+        UPDATE comment SET
+                         contents = #{contents},
+                         updated_datetime = Now()
+        WHERE comment_idx = #{commentIdx}
+    </update>
 </mapper>

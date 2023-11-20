@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.halyn.dto.BoardDto;
 import com.halyn.mapper.BoardMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -18,6 +19,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<BoardDto> selectBoardList(PageDto pageDto) throws Exception {
+        /* if ~~ */
         return boardMapper.selectBoardList(pageDto);
     }
 
@@ -62,8 +64,10 @@ public class BoardServiceImpl implements BoardService {
         boardMapper.updateBoard(board);
     }
 
+
     @Override
-    public void deleteBoard(int boardIdx) throws Exception {
-        boardMapper.deleteBoard(boardIdx);
+    @Transactional
+    public int deleteBoard(int boardIdx) throws Exception {
+        return boardMapper.deleteBoard(boardIdx);
     }
 }

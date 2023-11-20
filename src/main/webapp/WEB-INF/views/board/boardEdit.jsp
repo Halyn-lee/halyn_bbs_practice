@@ -9,6 +9,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/summernote/summernote-lite.js"></script>
     <script src="/js/summernote/lang/summernote-ko-KR.js"></script>
+    <style>
+        .note-editor.note-frame.fullscreen, .note-editor.note-airframe.fullscreen {
+            background-color: white;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
