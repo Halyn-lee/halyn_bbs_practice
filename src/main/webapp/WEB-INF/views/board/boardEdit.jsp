@@ -1,14 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     <title>게시글 수정</title>
-    <link rel="stylesheet" href="/css/style.css"/>
-    <link rel="stylesheet" href="/css/summernote/summernote-lite.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/js/summernote/summernote-lite.js"></script>
-    <script src="/js/summernote/lang/summernote-ko-KR.js"></script>
+    <%@ include file="../header.jsp" %>
+    <%@ include file="../navBar.jsp" %>
     <style>
         .note-editor.note-frame.fullscreen, .note-editor.note-airframe.fullscreen {
             background-color: white;
@@ -53,19 +50,41 @@
         </table>
         <input type="hidden" id="boardIdx" name="boardIdx" value="${board.boardIdx}" />
         <input type="hidden" id="nowPage" name="nowPage" value="${pageDto.nowPage}" />
+        <input type="hidden" id="updaterId" name="updaterId" value="${board.creatorId}" />
     </form>
-    <a href="javascript:history.back();" id="list" class="btn">수정취소</a>
-    <a href="#this" id="edit" class="btn">수정완료</a>
+    <button type="button" id="cancel" class="btn">수정취소</button>
+    <button type="button" id="edit" class="btn">수정완료</button>
 </div>
 
 <script type="text/javascript">
     $(document).ready(function(){
 
-        $("#edit").on("click", function(){
-            var frm = $("#frm")[0];
-            frm.action = "/board/updateBoard.do";
-            frm.submit();
+        $("#cancel").on("click", function() {
+            history.back();
         });
+
+        $("#edit").on("click", function () {
+            var frm = $("#frm")[0];
+            var formData = new FormData(frm);
+
+            $.ajax({
+                url: "/board/updateBoard.do",
+                type: "POST",
+                data: JSON.stringify(Object.fromEntries(formData)),
+                contentType: "application/json",
+                success: function (data) {
+                    if (data) {
+                        window.location.href = "/board/openBoardDetail.do?boardIdx=" + data.boardIdx + "&nowPage=" + data.nowPage;
+                    } else {
+                        alert("수정 처리 실패");
+                    }
+                },
+                error: function () {
+                    alert("요청 에러");
+                }
+            });
+        });
+
 
         $('#summernote').summernote({
             height: 300,

@@ -15,7 +15,7 @@
             (
                 #{boardIdx},
                 #{contents},
-                'admin',
+                #{creatorId},
                 NOW()
             )
     </insert>
@@ -24,7 +24,8 @@
         SELECT comment_idx,
                contents,
                creator_id,
-               DATE_FORMAT(created_datetime, '%Y.%m.%d %H:%i:%s') AS created_datetime
+               DATE_FORMAT(created_datetime, '%Y.%m.%d %H:%i:%s') AS created_datetime,
+               DATE_FORMAT(updated_datetime, '%Y.%m.%d %H:%i:%s') AS updated_datetime
         FROM comment
         WHERE board_idx = #{boardIdx} AND deleted_yn = 'N'
         ORDER BY comment_idx DESC

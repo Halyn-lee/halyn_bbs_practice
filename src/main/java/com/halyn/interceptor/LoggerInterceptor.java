@@ -6,6 +6,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @Slf4j
 public class LoggerInterceptor extends HandlerInterceptorAdapter {
@@ -13,7 +14,13 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("======================================          START         ======================================");
         log.info(" Request URI \t:  " + request.getRequestURI());
-        return super.preHandle(request, response, handler);
+        HttpSession session = request.getSession();
+        if (session.getAttribute("loginId") != null) {
+            return true;
+        } else {
+            response.sendRedirect("/login");
+        }
+        return false;
     }
 
     @Override

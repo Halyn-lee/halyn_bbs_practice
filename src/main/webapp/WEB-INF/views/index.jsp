@@ -3,9 +3,9 @@
 <html>
 	<head>
     	<meta charset="utf-8">
-        <title>웹페이지 제목</title>
+        <title>INDEX</title>
 	</head>
 	<body>
-
+		<h1>INDEX PAGE</h1>
 	</body>
 </html>

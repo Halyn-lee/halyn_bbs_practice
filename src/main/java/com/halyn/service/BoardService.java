@@ -11,6 +11,6 @@ public interface BoardService {
     int selectBoardItemCount();
     boolean insertBoard(BoardDto board) throws Exception;
     BoardDto selectBoardDetail(int boardIdx) throws Exception;
-    void updateBoard(BoardDto board) throws Exception;
+    int updateBoard(BoardDto board) throws Exception;
     int deleteBoard(int boardIdx) throws Exception;
 }

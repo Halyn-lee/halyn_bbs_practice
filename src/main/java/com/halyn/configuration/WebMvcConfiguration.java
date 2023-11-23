@@ -8,8 +8,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer{
 
-    private final String[] excludePaths = {"/css/**", "/js/**"};
-    private final String[] addPaths = {};
+    private final String[] excludePaths = {"/css/**", "/js/**", "/login", "/error", "/join", "/insertMember.do"}; // 컨트롤러 경로
+    private final String[] addPaths = {"/**"};
 
     @Override
     public void addInterceptors(InterceptorRegistry registry){

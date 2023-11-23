@@ -19,8 +19,16 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<BoardDto> selectBoardList(PageDto pageDto) throws Exception {
-        /* if ~~ */
-        return boardMapper.selectBoardList(pageDto);
+        List<BoardDto> list = boardMapper.selectBoardList(pageDto);
+        int totalItemCount = boardMapper.selectBoardItemCount();
+
+        if (list.isEmpty() && pageDto.getNowPage() > 1) {
+            pageDto.setNowPage(pageDto.getNowPage() - 1);
+            list = boardMapper.selectBoardList(pageDto);
+        }
+        pageDto.setTotalItemCount(totalItemCount);
+
+        return list;
     }
 
     @Override
@@ -60,8 +68,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void updateBoard(BoardDto board) throws Exception {
-        boardMapper.updateBoard(board);
+    public int updateBoard(BoardDto board) throws Exception {
+        return boardMapper.updateBoard(board);
     }
 
 

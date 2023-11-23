@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,40 +29,29 @@ public class MainController {
     }
 
     @GetMapping("/board/openBoardList.do")
-    public String openBoardList(PageDto pageDto, Model model, RedirectAttributes redirectAttributes) throws Exception {
+    public String openBoardList(PageDto pageDto, Model model) throws Exception {
         List<BoardDto> list = boardService.selectBoardList(pageDto);
-        if (list.isEmpty() && pageDto.getNowPage() > 1) {
-            pageDto.setNowPage(pageDto.getNowPage() - 1);
-            redirectAttributes.addFlashAttribute("pageDto", pageDto);
-            return "redirect:/board/openBoardList.do?nowPage=" + pageDto.getNowPage();
-        }
-        pageDto.setTotalItemCount(boardService.selectBoardItemCount());
         model.addAttribute("list", list);
         model.addAttribute("pageDto", pageDto);
         return "/board/boardList";
     }
 
     @GetMapping("/board/openBoardWrite.do")
-    public String openBoardWrite(Model model,
-                                 @RequestParam(required = false) String error) throws Exception {
-        if (error != null && error.equals("-1")) {
-            model.addAttribute("error", "error");
-        }
+    public String openBoardWrite() throws Exception {
         return "/board/boardWrite";
     }
 
     @PostMapping("/board/openBoardWrite.do")
-    public String insertBoard(Model model, BoardDto board) throws Exception {
-        System.out.println(board.toString());
-        if (!boardService.insertBoard(board)) {
-            return "redirect:/board/openBoardWrite.do?error=-1";
-        }
-        return "redirect:/board/openBoardList.do";
+    @ResponseBody
+    public Map<String, Object> insertBoard(@RequestBody BoardDto board) throws Exception {
+        boolean result = boardService.insertBoard(board);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("result", result);
+        return resultMap;
     }
 
     @GetMapping("/board/openBoardDetail.do")
     public String openBoardDetail(@RequestParam("boardIdx") int boardIdx, Model model, PageDto pageDto, CommentDto comment) throws Exception {
-
         BoardDto board = boardService.selectBoardDetail(boardIdx);
         model.addAttribute("board", board);
         model.addAttribute("pageDto", pageDto);
@@ -74,8 +62,9 @@ public class MainController {
         return "/board/boardDetail";
     }
 
+
     @GetMapping("/board/openBoardEdit.do")
-    public String openBoardEdit(@RequestParam("boardIdx") int boardIdx, Model model, PageDto pageDto) throws Exception {
+    public String openBoardEdit(int boardIdx, Model model, PageDto pageDto) throws Exception {
         BoardDto board = boardService.selectBoardDetail(boardIdx);
         model.addAttribute("board", board);
         model.addAttribute("pageDto", pageDto);
@@ -84,11 +73,16 @@ public class MainController {
     }
 
     @PostMapping("/board/updateBoard.do")
-    public String updateBoard(BoardDto board, PageDto pageDto) throws Exception {
-        boardService.updateBoard(board);
+    @ResponseBody
+    public Map<String, Object> updateBoard(@RequestBody BoardDto board, PageDto pageDto) throws Exception {
+        boolean result = boardService.updateBoard(board) > 0;
         int boardIdx = board.getBoardIdx();
         int nowPage = pageDto.getNowPage();
-        return "redirect:/board/openBoardDetail.do?boardIdx=" + boardIdx + "&nowPage=" + nowPage;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("boardIdx", boardIdx);
+        resultMap.put("nowPage", nowPage);
+        resultMap.put("result", result);
+        return resultMap;
     }
 
     @PostMapping("/board/deleteBoard.do")

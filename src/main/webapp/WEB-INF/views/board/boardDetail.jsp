@@ -1,14 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-    <title>게시글 상세 화면</title>
-    <link rel="stylesheet" href="/css/summernote/summernote-lite.css">
-    <link rel="stylesheet" href="/css/style.css"/>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/js/summernote/summernote-lite.js"></script>
-    <script src="/js/summernote/lang/summernote-ko-KR.js"></script>
+    <title>게시글 상세</title>
+    <%@ include file="../header.jsp" %>
+    <%@ include file="../navBar.jsp" %>
 </head>
 <body>
 <div class="container">
@@ -52,15 +49,21 @@
         <input type="hidden" id="pageDto" name="pageDto" value="${pageDto.nowPage}"/>
     </form>
 
-    <a href="#this" id="list" class="btn">목록으로</a>
-    <a href="/board/openBoardEdit.do?boardIdx=${board.boardIdx}&nowPage=${pageDto.nowPage}" id="edit"
-       class="btn">수정하기</a>
-    <a id="delete" class="btn">삭제하기</a>
-
+    <button href="#this" id="list" class="btn">목록으로</button>
+    <c:choose>
+    <c:when test="${board.creatorId eq sessionScope.loginId}">
+    <button type="button" id="edit" class="btn">수정하기</button>
+    </c:when>
+    </c:choose>
+    <c:choose>
+    <c:when test="${sessionScope.loginId eq board.creatorId or sessionScope.loginId eq 'admin'}">
+    <button type="button" id="delete" class="btn">삭제하기</button>
+    </c:when>
+    </c:choose>
     <hr/>
     <h4>댓글 작성</h4>
     <form action="/board/openCommentWrite.do" method="post">
-        <input type="hidden" id="creator_id" name="creatorId" value="admin">
+        <input type="hidden" id="creator_id" name="creatorId" value=${sessionScope.loginId}>
         <p>
             <textarea name="contents">${comment.contents}</textarea>
         </p>
@@ -76,31 +79,40 @@
             <div class="comment" id="comment-${comment.commentIdx}">
                 <p>작성자: ${comment.creatorId}</p>
                 <p>작성일: ${comment.createdDatetime}</p>
+                <c:choose>
+                    <c:when test="${not empty comment.updatedDatetime}">
+                        <p>수정일: ${comment.updatedDatetime}</p>
+                    </c:when>
+                </c:choose>
                 <p>내용: <span class="contents">${comment.contents}</span></p>
-                <button type="button" class="btn cmtModify">수정</button>
-                <button type="button" class="btn cmtDelete" data-comment-idx="${comment.commentIdx}">삭제</button>
+                <c:choose>
+                    <c:when test="${sessionScope.loginId eq comment.creatorId}">
+                        <button type="button" class="btn cmtModify">수정</button>
+                    </c:when>
+                </c:choose>
+                <c:choose>
+                    <c:when test="${sessionScope.loginId eq comment.creatorId or sessionScope.loginId eq 'admin'}">
+                        <button type="button" class="btn cmtDelete" data-comment-idx="${comment.commentIdx}">삭제</button>
+                    </c:when>
+                </c:choose>
             </div>
             <hr class="comment-hr"/>
         </c:forEach>
     </div>
+
     <script type="text/javascript">
         $(function () {
 
             $("#list").on("click", function () {
-                var frm = $("#frm")[0];
                 location.href = "/board/openBoardList.do?nowPage=${pageDto.nowPage}";
             });
 
             $("#edit").on("click", function () {
-                var frm = $("#frm")[0];
-                frm.action = "/board/updateBoard.do";
-                frm.submit();
-            });
-
-            // PageDto(totalItemCount=0, pageSize=5, itemCountByPage=10, nowPage=1)
+                location.href = "/board/openBoardEdit.do?boardIdx=${board.boardIdx}&nowPage=${pageDto.nowPage}";
+            })
 
             $("#delete").click(function () {
-                const isConfirm = confirm("진짜 삭제 할거임?");
+                const isConfirm = confirm("게시글 진짜 삭제 할 거에용?");
                 if (!isConfirm) {
                     return; // 페이지 잔류
                 }
@@ -121,12 +133,12 @@
                 });
             });
 
-            $("#comment-list").on("click", ".cmtDelete", function () {
+            $(".cmtDelete").click(function () {
                 var commentIdx = $(this).data("comment-idx");
                 var boardIdx = $("#boardIdx").val();
                 var nowPage = $("#pageDto").val();
 
-                const isConfirm = confirm("댓글 진짜로 삭제해용?");
+                const isConfirm = confirm("댓글 진짜로 삭제할 거에용?");
                 if (!isConfirm) {
                     return;
                 }
@@ -159,10 +171,10 @@
 
             $(".cmtModify").click(function () {
                 const parentDiv = $(this).parent();
-                const orgContents = parentDiv.find(".contents");
+                // const orgContents = parentDiv.find(".contents");
                 const html = `
     <div class="comment-edit">
-        <textarea>${orgContents.text()}</textarea>
+        <textarea></textarea>
         <button type="button" class="btn" id="addBtn">수정완료</button>
     </div>
     `;
@@ -190,6 +202,7 @@
                             parentDiv.find(".contents").text(afterComment);
                             parentDiv.show();
                             parentDiv.siblings(".comment-edit").remove();
+
                         },
                         error: function () {
                             alert("댓글 수정 실패");

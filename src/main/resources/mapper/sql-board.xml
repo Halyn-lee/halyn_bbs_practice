@@ -65,7 +65,7 @@
 				title = #{title},
 				contents = #{contents},
 				updated_datetime = Now(),
-				updater_id = 'admin'
+				updater_id = #{updaterId}
 			WHERE
 				board_idx = #{boardIdx}
     </update>
@@ -74,7 +74,7 @@
 			UPDATE board SET
 				deleted_yn = 'Y',
 				updated_datetime = Now(),
-				updater_id = 'admin'
+				updater_id = #{updaterId}
 			WHERE
 				board_idx = #{boardIdx}
     </update>

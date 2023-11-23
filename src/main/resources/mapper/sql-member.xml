@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.halyn.mapper.MemberMapper">
+    <insert id="insertMember" parameterType="MemberDto">
+        INSERT INTO member
+        (
+            login_id,
+            password,
+            name,
+            gender,
+            birthday,
+            phone,
+            email,
+            join_date
+        )
+        VALUES
+        (
+            #{loginId},
+            #{password},
+            #{name},
+            #{gender},
+            #{birthday},
+            #{phone},
+            #{email},
+            NOW()
+        )
+    </insert>
+
+    <select id="selectMember"  resultType="MemberDto" parameterType="String">
+        SELECT *
+        FROM member
+        WHERE login_id = #{value}
+    </select>
+
+</mapper>

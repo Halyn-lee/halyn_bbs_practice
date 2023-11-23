@@ -1,10 +1,9 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-    <title>board</title>
-    <link rel="stylesheet" href="/css/style.css"/>
+    <%@include file="../navBar.jsp"%>
+    <title>게시글 목록</title>
 </head>
 <body>
 <div class="container">
@@ -72,14 +71,6 @@
             });
         }
         ;
-
-        // $(function () {
-        //     let trList = $("tbody").find("tr");
-        //     trList.click(function () {
-        //         $(this).find("a").click();
-        //     });
-        // });
-
     }
 
 </script>
